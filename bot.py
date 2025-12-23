@@ -4,7 +4,7 @@ import json
 import random
 import os
 
-TOKEN = "ТВОЙ_ТОКЕН_ИЗ_BOTFATHER"
+TOKEN = "7918361952:AAEFKZ05dpjO0OO3yyzzZGaBwRE3Us5W5D0"
 bot = telebot.TeleBot(TOKEN)
 
 def load(file):
