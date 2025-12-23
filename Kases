@@ -1,7 +1,7 @@
 {
   "common": {
     "price": 0,
-    "drops": ["bmw_m2"]
+    "drops": ["bmw_m2", "audi_r8"]
   },
   "bronze": {
     "price": 5000,
@@ -9,10 +9,10 @@
   },
   "silver": {
     "price": 50000,
-    "drops": ["bmw_m2", "audi_rs6"]
+    "drops": ["audi_r8"]
   },
   "gold": {
     "price": 100000,
-    "drops": ["audi_rs6"]
+    "drops": ["audi_r8"]
   }
 }
