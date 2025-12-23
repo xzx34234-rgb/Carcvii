@@ -5,10 +5,10 @@
     "rarity": "Epic",
     "image": "https://i.imgur.com/6XbKQzN.jpg"
   },
-  "audi_rs6": {
-    "name": "Audi RS6",
-    "price": 150000,
+  "audi_r8": {
+    "name": "Audi R8",
+    "price": 120000,
     "rarity": "Legendary",
-    "image": "https://i.imgur.com/Y0Z9KxZ.jpg"
+    "image": "https://i.imgur.com/qVJfX8T.jpg"
   }
 }
