@@ -1,0 +1,14 @@
+{
+  "bmw_m2": {
+    "name": "BMW M2",
+    "price": 100000,
+    "rarity": "Epic",
+    "image": "https://i.imgur.com/6XbKQzN.jpg"
+  },
+  "audi_rs6": {
+    "name": "Audi RS6",
+    "price": 150000,
+    "rarity": "Legendary",
+    "image": "https://i.imgur.com/Y0Z9KxZ.jpg"
+  }
+}
