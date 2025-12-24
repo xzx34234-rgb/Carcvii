@@ -9,7 +9,7 @@ bot = TeleBot(TOKEN)
 users = {}
 
 # ====== МАШИНЫ ======
-# Чтобы добавить новую машину, скопируй один блок и измени name, price, power, speed, acceleration, image
+# Чтобы добавить новую машину, копируй один блок и меняй name, price, power, speed, acceleration, image
 cars = {
     "bmw_m2": {
         "name": "BMW M2",
@@ -84,7 +84,6 @@ def menu(message):
             bot.send_message(message.chat.id, "📦 Инвентарь пуст")
         else:
             for car_name in user["inventory"]:
-                # Ищем объект машины по name
                 car_obj = next((c for c in cars.values() if c["name"] == car_name), None)
                 if car_obj:
                     send_car_card(message.chat.id, car_obj)
@@ -92,7 +91,13 @@ def menu(message):
     elif message.text == "🚗 Автосалон":
         for car in cars.values():
             send_car_card(message.chat.id, car)
-        # Покупка — по команде "Купить BMW M2" или можно добавить inline-кнопки для покупки
+            # Inline кнопка для покупки
+            kb = types.InlineKeyboardMarkup()
+            kb.add(types.InlineKeyboardButton(
+                f"Купить {car['name']} — {car['price']}$",
+                callback_data=f"buy_{car['name']}"
+            ))
+            bot.send_message(message.chat.id, "Нажми кнопку чтобы купить:", reply_markup=kb)
 
     elif message.text == "🎁 Кейсы":
         kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -101,9 +106,7 @@ def menu(message):
         kb.row("⬅️ Назад")
         bot.send_message(message.chat.id, "Выбери кейс:", reply_markup=kb)
 
-    # Обработка кейсов
     elif message.text.startswith("📦") or message.text.startswith("🥉") or message.text.startswith("🥈") or message.text.startswith("🥇"):
-        # Определяем кейс
         case_map = {
             "📦 Обычный (бесплатно)": "common",
             "🥉 Бронзовый (5k)": "bronze",
@@ -124,6 +127,25 @@ def menu(message):
 
     elif message.text == "⬅️ Назад":
         start(message)
+
+# ====== ОБРАБОТКА INLINE КНОПОК ======
+@bot.callback_query_handler(func=lambda call: True)
+def callback(call):
+    bot.answer_callback_query(call.id)  # обязательно сразу отвечаем
+
+    user = get_user(call.from_user.id)
+
+    if call.data.startswith("buy_"):
+        car_name = call.data[4:]
+        car_obj = next((c for c in cars.values() if c["name"] == car_name), None)
+        if car_obj:
+            if user["money"] >= car_obj["price"]:
+                user["money"] -= car_obj["price"]
+                user["inventory"].append(car_obj["name"])
+                send_car_card(call.message.chat.id, car_obj)
+                bot.send_message(call.message.chat.id, f"🎉 Ты купил {car_obj['name']}!")
+            else:
+                bot.send_message(call.message.chat.id, "Недостаточно денег")
 
 # ====== ЗАПУСК ======
 bot.infinity_polling()
