@@ -11,7 +11,7 @@ bot = telebot.TeleBot(TOKEN)
 
 # ===== БАЗА ДАННЫХ =====
 cars = {
-    "Common": [{"name": "BMW M2", "image": "ссылка_на_картинку", "price": 100000, "stage": 0}],
+    "Common": [{"name": "BMW G21 320i", "image": "https://i.postimg.cc/DfJ3CqCB/IMG-20251224-140330.jpg", "price": 100000, "stage": 0}],
     "Uncommon": [{"name": "Audi RS5", "image": "ссылка_на_картинку", "price": 150000, "stage": 0}],
     "Rare": [{"name": "Ferrari F8", "image": "ссылка_на_картинку", "price": 500000, "stage": 0}],
     "Epic": [{"name": "Lamborghini Huracan", "image": "ссылка_на_картинку", "price": 800000, "stage": 0}],
