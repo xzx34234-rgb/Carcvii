@@ -1,7 +1,7 @@
 from telebot import TeleBot, types
 import random
 
-TOKEN = "ВСТАВЬ_СЮДА_ТОКЕН_ОТ_BOTFATHER"
+TOKEN = "7918361952:AAEFKZ05dpjO0OO3yyzzZGaBwRE3Us5W5D0"
 bot = TeleBot(TOKEN)
 
 # ---- ИГРОВЫЕ ДАННЫЕ (временно в памяти) ----
