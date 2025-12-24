@@ -1,9 +1,0 @@
-"bmw_m2": {
-    "name": "BMW M2",
-    "price": 100000,
-    "power": 460,
-    "speed": 280,
-    "acceleration": 4.1,
-    "stage": 0,
-    "image": "https://i.postimg.cc/1t9Pfr8F/IMG-20251224-140330.jpg"
-}
