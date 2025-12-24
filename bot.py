@@ -8,7 +8,7 @@ bot = TeleBot(TOKEN)
 users = {}
 
 cars = {
-    "bmw_m2": {"name": "BMW M2", "price": 100000},
+    "bmw 320i": {"name": "BMW 320i", "price": 25000},
     "audi_rs7": {"name": "Audi RS7", "price": 150000},
     "gtr_r35": {"name": "Nissan GTR R35", "price": 200000}
 }
