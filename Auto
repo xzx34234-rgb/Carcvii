@@ -1,9 +1,9 @@
 {
-  "bmw_m2": {
-    "name": "BMW M2",
-    "price": 100000,
+  "BMW 320i G21": {
+    "name": "BMW 321i G21",
+    "price": 25000,
     "rarity": "Epic",
-    "image": "https://i.imgur.com/6XbKQzN.jpg"
+    "image": "Q<a href='https://postimg.cc/Z9DXQ3FY' target='_blank'><img src='https://i.postimg.cc/1t9Pfr8F/IMG-20251224-140330.jpg' border='0' alt='IMG-20251224-140330'></a>"
   },
   "audi_r8": {
     "name": "Audi R8",
