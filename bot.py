@@ -4,35 +4,29 @@ from flask import Flask, request
 import telebot
 from telebot import types
 
-TOKEN = os.getenv("7918361952:AAEFKZ05dpjO0OO3yyzzZGaBwRE3Us5W5D0")
-CHANNEL = "https://t.me/carcvi"
+TOKEN = os.getenv("7918361952:AAEFKZ05dpjO0OO3yyzzZGaBwRE3Us5W5D0")  # токен бота от BotFather
+CHANNEL = "@https://t.me/carcvi"     # Вписываем твой канал с @
+
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
-# ---------------- ДАННЫЕ ----------------
+# ------------------ ДАННЫЕ ------------------
 users = {}
 pending_trades = {}
 
-# Авто (ссылки примерные, вставляй свои)
+# Пример авто, вставляй свои картинки и характеристики
 CARS = [
     {"name": "BMW M2", "hp": 450, "speed": 280, "rarity": "Common", "image": "https://i.postimg.cc/1t9Pfr8F/IMG-20251224-140330.jpg"},
     {"name": "Ferrari F8", "hp": 720, "speed": 340, "rarity": "Legendary", "image": "https://i.postimg.cc/xyz.jpg"},
     {"name": "Toyota Supra", "hp": 420, "speed": 250, "rarity": "Uncommon", "image": "https://i.postimg.cc/abc.jpg"},
 ]
 
-# Редкости и шанс
 RARITY_CHANCES = {"Common":55,"Uncommon":25,"Rare":12,"Epic":6,"Legendary":2,"Mythic":0.5}
-
-# Stage тюнинг
-STAGE_COSTS = {1:10000,2:35000,3:300} # Stage3 за звёзды
-
-# Кейсы донат
+STAGE_COSTS = {1:10000,2:35000,3:300}  # Stage3 за звёзды
 DONATE_CASES_COST = {"Japan":250,"USA":250,"EU":250}
-
-# Сколько бесплатных кейсов в час
 DAILY_CASES_PER_HOUR = 2
 
-# ---------------- ФУНКЦИИ ----------------
+# ------------------ ФУНКЦИИ ------------------
 def get_user(uid):
     if uid not in users:
         users[uid] = {"money":10000,"stars":0,"cars":[],"last_daily_case":0}
@@ -53,7 +47,6 @@ def select_car_by_rarity(container=None):
         if rnd <= cum:
             cars = [c for c in CARS if c["rarity"]==r]
             if container:
-                # фильтр по стране, например 'Japan'
                 cars = [c for c in cars if container in c.get("country","")]
             return random.choice(cars) if cars else random.choice(CARS)
     return random.choice(CARS)
@@ -65,7 +58,7 @@ def check_subscription(user_id):
     except:
         return False
 
-# ---------------- СТАРТ ----------------
+# ------------------ /start ------------------
 @bot.message_handler(commands=['start'])
 def start(message):
     if not check_subscription(message.from_user.id):
@@ -74,7 +67,7 @@ def start(message):
     get_user(message.from_user.id)
     bot.send_message(message.chat.id,"🚗 Добро пожаловать в Car Case Bot!",reply_markup=main_keyboard())
 
-# ---------------- ОТКРЫТИЕ КЕЙСА ----------------
+# ------------------ ОТКРЫТИЕ КЕЙСА ------------------
 @bot.message_handler(func=lambda m:m.text=="🎁 Открыть кейс")
 def open_case(msg):
     user = get_user(msg.from_user.id)
@@ -83,7 +76,7 @@ def open_case(msg):
     text = f"🎉 Ты получил авто!\n🚗 {car['name']}\n⚡ {car['hp']} HP\n🏁 {car['speed']} км/ч\nРедкость: {car['rarity']}"
     bot.send_photo(msg.chat.id,car["image"],caption=text)
 
-# ---------------- ГАРАЖ ----------------
+# ------------------ ГАРАЖ ------------------
 @bot.message_handler(func=lambda m:m.text=="🚗 Гараж")
 def garage(msg):
     user = get_user(msg.from_user.id)
@@ -94,7 +87,7 @@ def garage(msg):
         text = f"{idx}. {car['name']} | {car['hp']} HP | {car['rarity']} | Stage: {car.get('stage',0)}"
         bot.send_photo(msg.chat.id,car["image"],caption=text)
 
-# ---------------- ТЮНИНГ ----------------
+# ------------------ ТЮНИНГ ------------------
 @bot.message_handler(func=lambda m:m.text=="🛠 Тюнинг")
 def tuning(msg):
     user = get_user(msg.from_user.id)
@@ -127,7 +120,7 @@ def tuning_callback(call):
     car["stage"]=stage
     bot.send_message(call.from_user.id,f"✅ {car['name']} улучшен до Stage {stage}")
 
-# ---------------- АВТОСАЛОН ----------------
+# ------------------ АВТОСАЛОН ------------------
 @bot.message_handler(func=lambda m:m.text=="🏪 Автосалон")
 def car_shop(msg):
     user = get_user(msg.from_user.id)
@@ -149,7 +142,7 @@ def shop_callback(call):
     user["cars"].append(car)
     bot.send_message(call.from_user.id,f"✅ Куплено {car['name']} за {price}€")
 
-# ---------------- ОБМЕН ----------------
+# ------------------ ОБМЕН ------------------
 @bot.message_handler(func=lambda m:m.text=="🔄 Обмен")
 def trade_start(msg):
     bot.send_message(msg.chat.id,"✏️ Введи @username игрока:")
@@ -207,7 +200,7 @@ def trade_callback(call):
     bot.send_message(seller_id,f"💰 Авто продано за {price}€")
     del pending_trades[seller_id]
 
-# ---------------- ДОНАТ ----------------
+# ------------------ ДОНАТ ------------------
 @bot.message_handler(func=lambda m:m.text=="💎 Донат")
 def donate(msg):
     kb=types.InlineKeyboardMarkup()
@@ -228,7 +221,7 @@ def donate_callback(call):
     user["cars"].append(car)
     bot.send_photo(call.from_user.id,car["image"],caption=f"🎉 Вы получили {car['name']}!")
 
-# ---------------- WEBHOOK ----------------
+# ------------------ WEBHOOK ------------------
 @app.route("/", methods=["POST"])
 def webhook():
     json_str=request.get_data().decode("UTF-8")
@@ -236,9 +229,9 @@ def webhook():
     bot.process_new_updates([update])
     return "OK",200
 
-# ---------------- ЗАПУСК ----------------
+# ------------------ ЗАПУСК ------------------
 if __name__=="__main__":
     bot.remove_webhook()
     bot.set_webhook(url=f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/")
     port=int(os.environ.get("PORT",10000))
-    app.run(host="0.0.0.0",port=port)
+    app.run(host="0.0.0.0", port=port)
