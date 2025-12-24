@@ -4,8 +4,8 @@ import random
 import os
 
 # ===== ПЕРЕМЕННЫЕ =====
-TOKEN = os.getenv('7918361952:AAEFKZ05dpjO0OO3yyzzZGaBwRE3Us5W5D0')  # Токен бота
-CHANNEL = os.getenv('https://t.me/carcvi')  # Тег канала для подписки
+TOKEN = '7918361952:AAEFKZ05dpjO0OO3yyzzZGaBwRE3Us5W5D0'  # Токен бота
+CHANNEL ='@carcvi'  # Тег канала для подписки
 
 bot = telebot.TeleBot(TOKEN)
 
