@@ -1,18 +1,37 @@
 from telebot import TeleBot, types
 import random
 
+# ====== ВСТАВЬ СВОЙ ТОКЕН ОТ BOTFATHER ======
 TOKEN = "7918361952:AAEFKZ05dpjO0OO3yyzzZGaBwRE3Us5W5D0"
 bot = TeleBot(TOKEN)
 
-# ---- ИГРОВЫЕ ДАННЫЕ (временно в памяти) ----
+# ====== ИГРОВАЯ ИНФОРМАЦИЯ ======
 users = {}
 
+# ====== МАШИНЫ ======
+# Чтобы добавить новую машину, скопируй один блок и измени name, price, power, speed, acceleration, image
 cars = {
-    "bmw 320i": {"name": "BMW 320i", "price": 25000},
-    "audi_rs7": {"name": "Audi RS7", "price": 150000},
-    "gtr_r35": {"name": "Nissan GTR R35", "price": 200000}
+    "bmw_m2": {
+        "name": "BMW M2",
+        "price": 100000,
+        "power": 460,
+        "speed": 280,
+        "acceleration": 4.1,
+        "stage": 0,
+        "image": "https://i.postimg.cc/1t9Pfr8F/IMG-20251224-140330.jpg"
+    },
+    "audi_rs7": {
+        "name": "Audi RS7",
+        "price": 150000,
+        "power": 600,
+        "speed": 305,
+        "acceleration": 3.6,
+        "stage": 0,
+        "image": "https://i.postimg.cc/1t9Pfr8F/IMG-20251224-140330.jpg"
+    }
 }
 
+# ====== КЕЙСЫ ======
 cases = {
     "common": {"name": "Обычный кейс", "price": 0},
     "bronze": {"name": "Бронзовый кейс", "price": 5000},
@@ -20,121 +39,91 @@ cases = {
     "gold": {"name": "Золотой кейс", "price": 100000}
 }
 
-# ---- ВСПОМОГАТЕЛЬНОЕ ----
+# ====== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ======
 def get_user(user_id):
     if user_id not in users:
-        users[user_id] = {
-            "money": 10000,
-            "inventory": []
-        }
+        users[user_id] = {"money": 10000, "inventory": []}
     return users[user_id]
 
-# ---- START ----
+def send_car_card(chat_id, car):
+    text = (
+        f"🚗 *{car['name']}*\n\n"
+        f"⚡ Мощность: {car['power']} л.с.\n"
+        f"🏁 Макс. скорость: {car['speed']} км/ч\n"
+        f"⏱ Разгон 0–100: {car['acceleration']} сек\n"
+        f"🔧 Stage: {car['stage']}\n\n"
+        f"💰 Цена: {car['price']}$"
+    )
+    bot.send_photo(chat_id, car["image"], caption=text, parse_mode="Markdown")
+
+# ====== START ======
 @bot.message_handler(commands=["start"])
 def start(message):
     user = get_user(message.from_user.id)
 
-    kb = types.InlineKeyboardMarkup(row_width=2)
-    kb.add(
-        types.InlineKeyboardButton("🚗 Автосалон", callback_data="shop"),
-        types.InlineKeyboardButton("🎁 Кейсы", callback_data="cases"),
-        types.InlineKeyboardButton("📦 Инвентарь", callback_data="inventory"),
-        types.InlineKeyboardButton("👤 Профиль", callback_data="profile")
-    )
+    # ReplyKeyboard внизу экрана
+    kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    kb.row("🚗 Автосалон", "🎁 Кейсы")
+    kb.row("📦 Инвентарь", "👤 Профиль")
 
-    bot.send_message(
-        message.chat.id,
-        "🚘 *CAR CASE*\nВыбери действие:",
-        parse_mode="Markdown",
-        reply_markup=kb
-    )
+    bot.send_message(message.chat.id, "Добро пожаловать в CAR CASE 🚘", reply_markup=kb)
 
-# ---- ОБРАБОТКА КНОПОК ----
-@bot.callback_query_handler(func=lambda call: True)
-def callback(call):
-    user = get_user(call.from_user.id)
+# ====== ОБРАБОТКА КНОПОК ======
+@bot.message_handler(func=lambda message: True)
+def menu(message):
+    user = get_user(message.from_user.id)
 
-    # ПРОФИЛЬ
-    if call.data == "profile":
-        bot.answer_callback_query(call.id)
+    if message.text == "👤 Профиль":
         bot.send_message(
-            call.message.chat.id,
+            message.chat.id,
             f"👤 Профиль\n💰 Деньги: {user['money']}$\n🚗 Авто: {len(user['inventory'])}"
         )
 
-    # ИНВЕНТАРЬ
-    elif call.data == "inventory":
-        bot.answer_callback_query(call.id)
+    elif message.text == "📦 Инвентарь":
         if not user["inventory"]:
-            bot.send_message(call.message.chat.id, "📦 Инвентарь пуст")
+            bot.send_message(message.chat.id, "📦 Инвентарь пуст")
         else:
-            text = "📦 Твои авто:\n"
-            for car in user["inventory"]:
-                text += f"• {car}\n"
-            bot.send_message(call.message.chat.id, text)
+            for car_name in user["inventory"]:
+                # Ищем объект машины по name
+                car_obj = next((c for c in cars.values() if c["name"] == car_name), None)
+                if car_obj:
+                    send_car_card(message.chat.id, car_obj)
 
-    # АВТОСАЛОН
-    elif call.data == "shop":
-        bot.answer_callback_query(call.id)
-        kb = types.InlineKeyboardMarkup()
-        for car_id, car in cars.items():
-            kb.add(
-                types.InlineKeyboardButton(
-                    f"{car['name']} — {car['price']}$",
-                    callback_data=f"buy_{car_id}"
-                )
-            )
-        kb.add(types.InlineKeyboardButton("⬅️ Назад", callback_data="back"))
-        bot.send_message(call.message.chat.id, "🏪 Автосалон:", reply_markup=kb)
+    elif message.text == "🚗 Автосалон":
+        for car in cars.values():
+            send_car_card(message.chat.id, car)
+        # Покупка — по команде "Купить BMW M2" или можно добавить inline-кнопки для покупки
 
-    # ПОКУПКА АВТО
-    elif call.data.startswith("buy_"):
-        car_id = call.data.replace("buy_", "")
-        car = cars[car_id]
+    elif message.text == "🎁 Кейсы":
+        kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        kb.row("📦 Обычный (бесплатно)", "🥉 Бронзовый (5k)")
+        kb.row("🥈 Серебряный (50k)", "🥇 Золотой (100k)")
+        kb.row("⬅️ Назад")
+        bot.send_message(message.chat.id, "Выбери кейс:", reply_markup=kb)
 
-        if user["money"] >= car["price"]:
-            user["money"] -= car["price"]
-            user["inventory"].append(car["name"])
-            bot.answer_callback_query(call.id, "Покупка успешна!")
-            bot.send_message(call.message.chat.id, f"🚗 Ты купил {car['name']}!")
-        else:
-            bot.answer_callback_query(call.id, "Недостаточно денег")
-
-    # КЕЙСЫ
-    elif call.data == "cases":
-        bot.answer_callback_query(call.id)
-        kb = types.InlineKeyboardMarkup()
-        for case_id, case in cases.items():
-            kb.add(
-                types.InlineKeyboardButton(
-                    f"{case['name']} ({case['price']}$)",
-                    callback_data=f"open_{case_id}"
-                )
-            )
-        kb.add(types.InlineKeyboardButton("⬅️ Назад", callback_data="back"))
-        bot.send_message(call.message.chat.id, "🎁 Кейсы:", reply_markup=kb)
-
-    # ОТКРЫТИЕ КЕЙСА
-    elif call.data.startswith("open_"):
-        case_id = call.data.replace("open_", "")
+    # Обработка кейсов
+    elif message.text.startswith("📦") or message.text.startswith("🥉") or message.text.startswith("🥈") or message.text.startswith("🥇"):
+        # Определяем кейс
+        case_map = {
+            "📦 Обычный (бесплатно)": "common",
+            "🥉 Бронзовый (5k)": "bronze",
+            "🥈 Серебряный (50k)": "silver",
+            "🥇 Золотой (100k)": "gold"
+        }
+        case_id = case_map.get(message.text)
         case = cases[case_id]
 
         if user["money"] >= case["price"]:
             user["money"] -= case["price"]
             car = random.choice(list(cars.values()))
             user["inventory"].append(car["name"])
-            bot.answer_callback_query(call.id)
-            bot.send_message(
-                call.message.chat.id,
-                f"🎉 Ты открыл {case['name']}!\n🚗 Выпало: {car['name']}"
-            )
+            send_car_card(message.chat.id, car)
+            bot.send_message(message.chat.id, f"🎉 Ты открыл {case['name']}!")
         else:
-            bot.answer_callback_query(call.id, "Недостаточно денег")
+            bot.send_message(message.chat.id, "Недостаточно денег")
 
-    # НАЗАД
-    elif call.data == "back":
-        bot.answer_callback_query(call.id)
-        start(call.message)
+    elif message.text == "⬅️ Назад":
+        start(message)
 
-# ---- ЗАПУСК ----
+# ====== ЗАПУСК ======
 bot.infinity_polling()
